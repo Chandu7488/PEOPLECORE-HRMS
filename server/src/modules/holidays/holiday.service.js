@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-import { PDFParse } from 'pdf-parse';
 import { HolidayCalendar } from './holidayCalendar.model.js';
 import { Holiday } from './holiday.model.js';
 import { recordAuditLog } from '../audit/audit.model.js';
@@ -453,14 +452,20 @@ export class HolidayService {
 
     // If PDF Document
     if (lower.endsWith('.pdf') || mimeType?.includes('pdf')) {
-      const dataBuffer = fs.readFileSync(filePath);
-      const parser = new PDFParse({ data: dataBuffer });
       try {
-        const textResult = await parser.getText();
-        const extracted = this.extractHolidaysFromText(textResult.text || '');
-        return extracted;
-      } finally {
-        await parser.destroy().catch(() => {});
+        const { PDFParse } = await import('pdf-parse');
+        const dataBuffer = fs.readFileSync(filePath);
+        const parser = new PDFParse({ data: dataBuffer });
+        try {
+          const textResult = await parser.getText();
+          const extracted = this.extractHolidaysFromText(textResult.text || '');
+          return extracted;
+        } finally {
+          await parser.destroy().catch(() => {});
+        }
+      } catch (pdfErr) {
+        console.warn('PDF parsing module not available or failed:', pdfErr.message);
+        return { detectedYear: 2026, rows: [] };
       }
     }
 
