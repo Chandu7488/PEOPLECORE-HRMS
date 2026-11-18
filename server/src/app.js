@@ -72,24 +72,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
-// Database connection assurance for serverless environments
-app.use(async (req, res, next) => {
-  try {
-    await connectDB();
-    next();
-  } catch (err) {
-    console.error('Database connection error in request:', err.message);
-    return res.status(500).json({
-      success: false,
-      error: {
-        code: 'DATABASE_CONNECTION_ERROR',
-        message: 'Database connection failed: ' + err.message,
-      },
-    });
-  }
-});
-
-// Health & Liveness Checks
+// Health & Liveness Checks (runs immediately without blocking on DB connection)
 app.get(['/api/v1/health', '/v1/health', '/health'], (req, res) => {
   const isDbConnected = mongoose.connection.readyState === 1;
 
@@ -106,6 +89,32 @@ app.get(['/api/v1/health', '/v1/health', '/health'], (req, res) => {
     },
     message: 'PeopleCore HRMS API is operational',
   });
+});
+
+// Root welcome route
+app.get(['/', '/api'], (req, res) => {
+  res.json({
+    name: 'PeopleCore HRMS API',
+    version: '1.0.0',
+    documentation: '/api/v1/health',
+  });
+});
+
+// Database connection assurance for serverless environments
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('Database connection error in request:', err.message);
+    return res.status(500).json({
+      success: false,
+      error: {
+        code: 'DATABASE_CONNECTION_ERROR',
+        message: 'Database connection failed: ' + err.message + ' (Please verify 0.0.0.0/0 is whitelisted in MongoDB Atlas Network Access).',
+      },
+    });
+  }
 });
 
 app.get(['/api/v1/ready', '/v1/ready', '/ready'], (req, res) => {
@@ -152,14 +161,6 @@ apiRouter.use('/audit', auditRoutes);
 app.use('/api/v1', apiRouter);
 app.use('/v1', apiRouter);
 
-// Root welcome route
-app.get(['/', '/api'], (req, res) => {
-  res.json({
-    name: 'PeopleCore HRMS API',
-    version: '1.0.0',
-    documentation: '/api/v1/health',
-  });
-});
 
 // 404 and Error handling
 app.use(notFound);
