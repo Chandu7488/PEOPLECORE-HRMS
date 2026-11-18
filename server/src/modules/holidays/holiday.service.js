@@ -453,18 +453,12 @@ export class HolidayService {
     // If PDF Document
     if (lower.endsWith('.pdf') || mimeType?.includes('pdf')) {
       try {
-        const { PDFParse } = await import('pdf-parse');
-        const dataBuffer = fs.readFileSync(filePath);
-        const parser = new PDFParse({ data: dataBuffer });
-        try {
-          const textResult = await parser.getText();
-          const extracted = this.extractHolidaysFromText(textResult.text || '');
-          return extracted;
-        } finally {
-          await parser.destroy().catch(() => {});
-        }
+        const raw = fs.readFileSync(filePath, 'latin1');
+        // Extract readable text sequences from raw PDF stream
+        const textBlocks = (raw.match(/[A-Za-z0-9\s,.-]{4,}/g) || []).join(' ');
+        return this.extractHolidaysFromText(textBlocks);
       } catch (pdfErr) {
-        console.warn('PDF parsing module not available or failed:', pdfErr.message);
+        console.warn('PDF parsing fallback:', pdfErr.message);
         return { detectedYear: 2026, rows: [] };
       }
     }
