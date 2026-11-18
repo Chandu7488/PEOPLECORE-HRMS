@@ -16,8 +16,31 @@ import {
 import { authenticate, authorize } from '../../middleware/auth.js';
 import { ROLES } from '../../config/roles.js';
 
+import os from 'os';
+import path from 'path';
+import fs from 'fs';
+
+const holidayUploadDir = path.join(os.tmpdir(), 'peoplecore-uploads');
+try {
+  if (!fs.existsSync(holidayUploadDir)) {
+    fs.mkdirSync(holidayUploadDir, { recursive: true });
+  }
+} catch (e) {
+  // Silent fallback in constrained environments
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, holidayUploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, `${uniqueSuffix}-${file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_')}`);
+  },
+});
+
 const upload = multer({
-  dest: 'uploads/',
+  storage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
 });
 

@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { ENV } from './config/env.js';
 import { connectDB } from './config/db.js';
@@ -37,8 +38,11 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
 
-// Static uploaded documents & files
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// Static uploaded documents & files (guarded for serverless)
+const uploadsStaticDir = path.join(__dirname, '../uploads');
+if (fs.existsSync(uploadsStaticDir)) {
+  app.use('/uploads', express.static(uploadsStaticDir));
+}
 
 // CORS Configuration
 const allowedOrigins = [
