@@ -32,7 +32,9 @@ const startServer = async () => {
     }
   } catch (error) {
     console.error('Fatal error starting server:', error);
-    process.exit(1);
+    if (!process.env.VERCEL) {
+      process.exit(1);
+    }
   }
 };
 
