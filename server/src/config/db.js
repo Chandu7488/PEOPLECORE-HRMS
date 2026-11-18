@@ -24,7 +24,7 @@ export const connectDB = async () => {
     });
 
     await mongoose.connect(ENV.MONGODB_URI, {
-      serverSelectionTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 5000,
       autoIndex: ENV.NODE_ENV !== 'production',
     });
   } catch (error) {

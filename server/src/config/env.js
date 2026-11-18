@@ -4,10 +4,10 @@ dotenv.config();
 export const ENV = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   PORT: parseInt(process.env.PORT, 10) || 5000,
-  MONGODB_URI: process.env.MONGODB_URI || 'mongodb://localhost:27017/peoplecore_hrms',
+  MONGODB_URI: process.env.MONGODB_URI || 'mongodb+srv://stockpilot_app:6AEQw8xOgQGlq5cd@stockpilot-cluster.y3hhofr.mongodb.net/peoplecore_hrms?retryWrites=true&w=majority',
   CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:5173',
-  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET || 'default_jwt_access_secret_change_in_production',
-  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || 'default_jwt_refresh_secret_change_in_production',
+  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET || 'c914e6ad8e2e92389e66bf24a1b023de6701bb74cf5db436a57bf1068ba0999d',
+  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || '7f5309da30c45d3151fa4f90bf4ea7e9095642ba93d182dc74cb0657c91f16f2',
   JWT_ACCESS_EXPIRES_IN: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   COOKIE_SECURE: process.env.COOKIE_SECURE === 'true',
