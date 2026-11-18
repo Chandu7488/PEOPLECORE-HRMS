@@ -6,6 +6,10 @@ import { ENV } from './env.js';
  * Sets up event listeners for disconnects, errors, and reconnects
  */
 export const connectDB = async () => {
+  if (mongoose.connection.readyState >= 1) {
+    return;
+  }
+
   try {
     mongoose.connection.on('connected', () => {
       console.log('✅ MongoDB connected successfully');

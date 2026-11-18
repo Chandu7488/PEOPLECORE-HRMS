@@ -6,7 +6,15 @@ export class HelpdeskService {
   async generateTicketNumber(orgId) {
     const year = new Date().getFullYear();
     const count = await HelpdeskTicket.countDocuments({ organizationId: orgId });
-    return `TICK-${year}-${String(count + 1).padStart(3, '0')}`;
+    let ticketNumber = `TICK-${year}-${String(count + 1).padStart(3, '0')}`;
+    let exists = await HelpdeskTicket.exists({ organizationId: orgId, ticketNumber });
+    let increment = 1;
+    while (exists) {
+      ticketNumber = `TICK-${year}-${String(count + 1 + increment).padStart(3, '0')}`;
+      exists = await HelpdeskTicket.exists({ organizationId: orgId, ticketNumber });
+      increment++;
+    }
+    return ticketNumber;
   }
 
   async createTicket(orgId, employeeId, data, actorUserId = null) {

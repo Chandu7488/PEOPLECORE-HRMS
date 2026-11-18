@@ -20,12 +20,21 @@ import {
 import { authenticate, authorize } from '../../middleware/auth.js';
 import { ROLES } from '../../config/roles.js';
 
+import os from 'os';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const uploadDir = path.resolve(__dirname, '../../../uploads/documents');
+let uploadDir = path.resolve(__dirname, '../../../uploads/documents');
 
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (e) {
+  uploadDir = path.join(os.tmpdir(), 'uploads/documents');
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
 }
 
 const storage = multer.diskStorage({
