@@ -90,7 +90,7 @@ app.use(async (req, res, next) => {
 });
 
 // Health & Liveness Checks
-app.get('/api/v1/health', (req, res) => {
+app.get(['/api/v1/health', '/v1/health', '/health'], (req, res) => {
   const isDbConnected = mongoose.connection.readyState === 1;
 
   res.status(200).json({
@@ -108,7 +108,7 @@ app.get('/api/v1/health', (req, res) => {
   });
 });
 
-app.get('/api/v1/ready', (req, res) => {
+app.get(['/api/v1/ready', '/v1/ready', '/ready'], (req, res) => {
   const isDbConnected = mongoose.connection.readyState === 1;
 
   if (isDbConnected) {
@@ -129,26 +129,31 @@ app.get('/api/v1/ready', (req, res) => {
   });
 });
 
-// Mount Modular Routes
-app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/organization', organizationRoutes);
-app.use('/api/v1/employees', employeeRoutes);
-app.use('/api/v1/holidays', holidayRoutes);
-app.use('/api/v1/notices', noticeRoutes);
-app.use('/api/v1/leave', leaveRoutes);
-app.use('/api/v1/attendance', attendanceRoutes);
-app.use('/api/v1/payroll', payrollRoutes);
-app.use('/api/v1/recruitment', recruitmentRoutes);
-app.use('/api/v1/offboarding', offboardingRoutes);
-app.use('/api/v1/performance', performanceRoutes);
-app.use('/api/v1/assets', assetRoutes);
-app.use('/api/v1/expenses', expenseRoutes);
-app.use('/api/v1/helpdesk', helpdeskRoutes);
-app.use('/api/v1/reports', reportsRoutes);
-app.use('/api/v1/audit', auditRoutes);
+// Modular Routes Router
+const apiRouter = express.Router();
+apiRouter.use('/auth', authRoutes);
+apiRouter.use('/organization', organizationRoutes);
+apiRouter.use('/employees', employeeRoutes);
+apiRouter.use('/holidays', holidayRoutes);
+apiRouter.use('/notices', noticeRoutes);
+apiRouter.use('/leave', leaveRoutes);
+apiRouter.use('/attendance', attendanceRoutes);
+apiRouter.use('/payroll', payrollRoutes);
+apiRouter.use('/recruitment', recruitmentRoutes);
+apiRouter.use('/offboarding', offboardingRoutes);
+apiRouter.use('/performance', performanceRoutes);
+apiRouter.use('/assets', assetRoutes);
+apiRouter.use('/expenses', expenseRoutes);
+apiRouter.use('/helpdesk', helpdeskRoutes);
+apiRouter.use('/reports', reportsRoutes);
+apiRouter.use('/audit', auditRoutes);
+
+// Mount on both /api/v1 and /v1
+app.use('/api/v1', apiRouter);
+app.use('/v1', apiRouter);
 
 // Root welcome route
-app.get('/', (req, res) => {
+app.get(['/', '/api'], (req, res) => {
   res.json({
     name: 'PeopleCore HRMS API',
     version: '1.0.0',
